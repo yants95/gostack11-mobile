@@ -1,6 +1,9 @@
 import React from 'react';
-import { View } from 'react-native';
 
-const SignUp: React.FC = () => <View />;
+import { Container } from './styles';
+
+const SignUp: React.FC = () => {
+    return <Container />;
+};
 
 export default SignUp;
