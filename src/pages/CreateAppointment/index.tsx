@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+import { format } from 'date-fns';
 
 import api from '../../services/api';
 
@@ -37,7 +39,7 @@ export interface Provider {
 
 interface AvailabilityItem {
     hour: number;
-    availability: boolean;
+    available: boolean;
 }
 
 const CreateAppointment: React.FC = () => {
@@ -96,6 +98,30 @@ const CreateAppointment: React.FC = () => {
         [],
     );
 
+    const morningAvailability = useMemo(() => {
+        return availability
+            .filter(({ hour }) => hour < 12)
+            .map(({ hour, available }) => {
+                return {
+                    hour,
+                    available,
+                    hourFormatted: format(new Date().setHours(hour), 'HH:00'),
+                };
+            });
+    }, [availability]);
+
+    const afternoonAvailability = useMemo(() => {
+        return availability
+            .filter(({ hour }) => hour >= 12)
+            .map(({ hour, available }) => {
+                return {
+                    hour,
+                    available,
+                    hourFormatted: format(new Date().setHours(hour), 'HH:00'),
+                };
+            });
+    }, [availability]);
+
     return (
         <Container>
             <Header>
@@ -105,7 +131,9 @@ const CreateAppointment: React.FC = () => {
 
                 <HeaderTitle>Cabeleireiros</HeaderTitle>
 
-                <UserAvatar source={{ uri: user.avatar_url }} />
+                {user.avatar_url && (
+                    <UserAvatar source={{ uri: user.avatar_url }} />
+                )}
             </Header>
 
             <ProvidersListContainer>
@@ -119,9 +147,11 @@ const CreateAppointment: React.FC = () => {
                             onPress={() => handleSelectProvider(provider.id)}
                             selected={provider.id === selectedProvider}
                         >
-                            <ProviderAvatar
-                                source={{ uri: provider.avatar_url }}
-                            />
+                            {provider.avatar_url && (
+                                <ProviderAvatar
+                                    source={{ uri: provider.avatar_url }}
+                                />
+                            )}
                             <ProviderName
                                 selected={provider.id === selectedProvider}
                             >
@@ -151,6 +181,14 @@ const CreateAppointment: React.FC = () => {
                     />
                 )}
             </Calendar>
+
+            {morningAvailability.map(({ hourFormatted }) => (
+                <Title key={hourFormatted}>{hourFormatted}</Title>
+            ))}
+
+            {afternoonAvailability.map(({ hourFormatted }) => (
+                <Title key={hourFormatted}>{hourFormatted}</Title>
+            ))}
         </Container>
     );
 };
