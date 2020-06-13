@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { format } from 'date-fns';
 
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import api from '../../services/api';
 
 import {
@@ -52,7 +53,7 @@ interface AvailabilityItem {
 }
 
 const CreateAppointment: React.FC = () => {
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
     const route = useRoute();
     const { goBack, navigate } = useNavigation();
 
